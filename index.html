@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPH Progression Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold mb-6 text-center">BPH Progression Predictor</h1>
+        <form id="patientForm" class="space-y-4">
+            <div>
+                <label for="age" class="block text-sm font-medium text-gray-700">Age (years)</label>
+                <input type="number" id="age" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0"
+                    required>
+            </div>
+            <div>
+                <label for="ipss" class="block text-sm font-medium text-gray-700">IPSS Score (0-35)</label>
+                <input type="number" id="ipss" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0"
+                    max="35" required>
+            </div>
+            <div>
+                <label for="prostateVolume" class="block text-sm font-medium text-gray-700">Prostate Volume (ml)</label>
+                <input type="number" id="prostateVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    min="0" required>
+            </div>
+            <div>
+                <label for="psa" class="block text-sm font-medium text-gray-700">PSA (ng/mL)</label>
+                <input type="number" id="psa" step="0.1" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    min="0" required>
+            </div>
+            <div>
+                <label for="residualVolume" class="block text-sm font-medium text-gray-700">Post-void Residual Volume
+                    (ml)</label>
+                <input type="number" id="residualVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    min="0" required>
+            </div>
+            <button type="submit"
+                class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">Predict</button>
+        </form>
+        <div id="result" class="mt-6 text-center text-lg font-semibold"></div>
+    </div>
+
+    <script>
+        // Simulated dataset for BPH progression (for reference, not used in prediction)
+        const data = [
+            { age: 55, ipss: 10, prostateVolume: 30, psa: 2.5, residualVolume: 50, progression: "Low" },
+            { age: 65, ipss: 20, prostateVolume: 50, psa: 6.0, residualVolume: 150, progression: "High" },
+            { age: 60, ipss: 15, prostateVolume: 40, psa: 4.0, residualVolume: 100, progression: "Low" },
+            { age: 70, ipss: 25, prostateVolume: 60, psa: 8.0, residualVolume: 200, progression: "High" },
+            { age: 58, ipss: 12, prostateVolume: 35, psa: 3.0, residualVolume: 80, progression: "Low" },
+            { age: 72, ipss: 30, prostateVolume: 70, psa: 10.0, residualVolume: 250, progression: "High" }
+        ];
+
+        // Simple decision tree logic based on thresholds derived from the dataset
+        function predictProgression(patientData) {
+            // Thresholds based on dataset analysis (e.g., mean values separating Low/High)
+            if (patientData.ipss > 20) {
+                if (patientData.psa > 7.0) {
+                    return "High";
+                }
+                if (patientData.residualVolume > 175) {
+                    return "High";
+                }
+            }
+            if (patientData.prostateVolume > 55) {
+                if (patientData.age > 65) {
+                    return "High";
+                }
+            }
+            return "Low";
+        }
+
+        // Form submission handler
+        document.getElementById("patientForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // Get input values
+            const patientData = {
+                age: parseFloat(document.getElementById("age").value),
+                ipss: parseFloat(document.getElementById("ipss").value),
+                prostateVolume: parseFloat(document.getElementById("prostateVolume").value),
+                psa: parseFloat(document.getElementById("psa").value),
+                residualVolume: parseFloat(document.getElementById("residualVolume").value)
+            };
+
+            // Input validation
+            if (isNaN(patientData.age) || isNaN(patientData.ipss) || isNaN(patientData.prostateVolume) ||
+                isNaN(patientData.psa) || isNaN(patientData.residualVolume)) {
+                document.getElementById("result").innerText = "Please enter valid numbers for all fields.";
+                return;
+            }
+            if (patientData.ipss < 0 || patientData.ipss > 35) {
+                document.getElementById("result").innerText = "IPSS Score must be between 0 and 35.";
+                return;
+            }
+
+            // Predict using the decision tree
+            const prediction = predictProgression(patientData);
+
+            // Display result
+            document.getElementById("result").innerText = `Prediction: ${prediction} probability of BPH progression`;
+        });
+    </script>
+</body>
+
+</html>

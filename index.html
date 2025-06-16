@@ -47,6 +47,9 @@
                 <input type="number" id="residualVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                     min="0" required>
             </div>
+            <div id="rpmResult" class="text-center text-sm font-medium text-gray-700">
+                RPM: <span id="rpmValue">0.00%</span>
+            </div>
             <button type="submit"
                 class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">Predecir</button>
         </form>
@@ -66,7 +69,6 @@
 
         // Lógica simple de árbol de decisión basada en umbrales derivados del conjunto de datos
         function predictProgression(patientData) {
-            // Umbrales basados en análisis del conjunto de datos (por ejemplo, valores medios que separan Baja/Alta)
             if (patientData.ipss > 20) {
                 if (patientData.psa > 7.0) {
                     return "Alta";
@@ -82,6 +84,28 @@
             }
             return "Baja";
         }
+
+        // Función para calcular y mostrar el porcentaje de RPM en tiempo real
+        function updateRpmPercentage() {
+            const totalVolume = parseFloat(document.getElementById("totalVolume").value);
+            const residualVolume = parseFloat(document.getElementById("residualVolume").value);
+            const rpmValueElement = document.getElementById("rpmValue");
+
+            if (!isNaN(totalVolume) && !isNaN(residualVolume) && totalVolume > 0) {
+                if (residualVolume > totalVolume) {
+                    rpmValueElement.innerText = "Error: Volumen residual mayor que total";
+                    return;
+                }
+                const rpmPercentage = ((residualVolume / totalVolume) * 100).toFixed(2);
+                rpmValueElement.innerText = `${rpmPercentage}%`;
+            } else {
+                rpmValueElement.innerText = "0.00%";
+            }
+        }
+
+        // Agregar eventos de entrada para actualizar RPM% en tiempo real
+        document.getElementById("totalVolume").addEventListener("input", updateRpmPercentage);
+        document.getElementById("residualVolume").addEventListener("input", updateRpmPercentage);
 
         // Manejador de envío del formulario
         document.getElementById("patientForm").addEventListener("submit", function (event) {
@@ -124,8 +148,7 @@
 
             // Mostrar resultados
             document.getElementById("result").innerText =
-                `Predicción: Probabilidad ${prediction} de progresión de HBP\n` +
-                `RPM: ${rpmPercentage}%`;
+                `Predicción: Probabilidad ${prediction} de progresión de HBP`;
         });
     </script>
 </body>

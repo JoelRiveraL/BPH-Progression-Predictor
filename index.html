@@ -37,6 +37,11 @@
                     min="0" required>
             </div>
             <div>
+                <label for="totalVolume" class="block text-sm font-medium text-gray-700">Volumen Total (ml)</label>
+                <input type="number" id="totalVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    min="0" required>
+            </div>
+            <div>
                 <label for="residualVolume" class="block text-sm font-medium text-gray-700">Volumen Residual
                     Postmiccional (ml)</label>
                 <input type="number" id="residualVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
@@ -82,31 +87,45 @@
         document.getElementById("patientForm").addEventListener("submit", function (event) {
             event.preventDefault();
 
-            // Obtener valores de entrada
+            // Obtener valores del formulario
             const patientData = {
                 age: parseFloat(document.getElementById("age").value),
                 ipss: parseFloat(document.getElementById("ipss").value),
                 prostateVolume: parseFloat(document.getElementById("prostateVolume").value),
                 psa: parseFloat(document.getElementById("psa").value),
-                residualVolume: parseFloat(document.getElementById("residualVolume").value)
+                residualVolume: parseFloat(document.getElementById("residualVolume").value),
+                totalVolume: parseFloat(document.getElementById("totalVolume").value)
             };
 
-            // Validación de entrada
-            if (isNaN(patientData.age) || isNaN(patientData.ipss) || isNaN(patientData.prostateVolume) ||
-                isNaN(patientData.psa) || isNaN(patientData.residualVolume)) {
+            // Validación básica
+            if (
+                isNaN(patientData.age) || isNaN(patientData.ipss) || isNaN(patientData.prostateVolume) ||
+                isNaN(patientData.psa) || isNaN(patientData.residualVolume) || isNaN(patientData.totalVolume)
+            ) {
                 document.getElementById("result").innerText = "Por favor, ingrese números válidos en todos los campos.";
                 return;
             }
+
             if (patientData.ipss < 0 || patientData.ipss > 35) {
                 document.getElementById("result").innerText = "El puntaje IPSS debe estar entre 0 y 35.";
                 return;
             }
 
-            // Predecir usando el árbol de decisión
+            if (patientData.residualVolume > patientData.totalVolume) {
+                document.getElementById("result").innerText = "El volumen residual no puede ser mayor que el volumen total.";
+                return;
+            }
+
+            // Calcular RPM%
+            const rpmPercentage = ((patientData.residualVolume / patientData.totalVolume) * 100).toFixed(2);
+
+            // Obtener predicción
             const prediction = predictProgression(patientData);
 
-            // Mostrar resultado
-            document.getElementById("result").innerText = `Predicción: Probabilidad ${prediction} de progresión de HBP`;
+            // Mostrar resultados
+            document.getElementById("result").innerText =
+                `Predicción: Probabilidad ${prediction} de progresión de HBP\n` +
+                `RPM: ${rpmPercentage}%`;
         });
     </script>
 </body>

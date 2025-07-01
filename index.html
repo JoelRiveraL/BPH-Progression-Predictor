@@ -9,43 +9,64 @@
 </head>
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
         <div class="flex justify-center mb-4">
             <img src="logo.jpeg" alt="Logo" class="h-[120px] w-auto">
         </div>
         <h1 class="text-2xl font-bold mb-6 text-center">Predicción de Progresión de HBP</h1>
         <form id="patientForm" class="space-y-4">
-            <div>
-                <label for="age" class="block text-sm font-medium text-gray-700">Edad (años)</label>
-                <input type="number" id="age" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0"
-                    required>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="age" class="block text-sm font-medium text-gray-700">Edad (años)</label>
+                    <input type="number" id="age" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0"
+                        required>
+                </div>
+                <div>
+                    <label for="ipss" class="block text-sm font-medium text-gray-700">Puntaje IPSS (0-35)</label>
+                    <input type="number" id="ipss" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0"
+                        max="35" required>
+                </div>
             </div>
-            <div>
-                <label for="ipss" class="block text-sm font-medium text-gray-700">Puntaje IPSS (0-35)</label>
-                <input type="number" id="ipss" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0"
-                    max="35" required>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="prostateVolume" class="block text-sm font-medium text-gray-700">Volumen Prostático
+                        (ml)</label>
+                    <input type="number" id="prostateVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                        min="0" required>
+                </div>
+                <div>
+                    <label for="psa" class="block text-sm font-medium text-gray-700">PSA (ng/mL)</label>
+                    <input type="number" id="psa" step="0.1" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                        min="0" required>
+                </div>
             </div>
-            <div>
-                <label for="prostateVolume" class="block text-sm font-medium text-gray-700">Volumen Prostático
-                    (ml)</label>
-                <input type="number" id="prostateVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                    min="0" required>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="totalVolume" class="block text-sm font-medium text-gray-700">Volumen Total (ml)</label>
+                    <input type="number" id="totalVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                        min="0" required>
+                </div>
+                <div>
+                    <label for="residualVolume" class="block text-sm font-medium text-gray-700">Volumen Residual
+                        Postmiccional (ml)</label>
+                    <input type="number" id="residualVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                        min="0" required>
+                </div>
             </div>
-            <div>
-                <label for="psa" class="block text-sm font-medium text-gray-700">PSA (ng/mL)</label>
-                <input type="number" id="psa" step="0.1" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                    min="0" required>
-            </div>
-            <div>
-                <label for="totalVolume" class="block text-sm font-medium text-gray-700">Volumen Total (ml)</label>
-                <input type="number" id="totalVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                    min="0" required>
-            </div>
-            <div>
-                <label for="residualVolume" class="block text-sm font-medium text-gray-700">Volumen Residual
-                    Postmiccional (ml)</label>
-                <input type="number" id="residualVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                    min="0" required>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="creatinine" class="block text-sm font-medium text-gray-700">Creatinina (mg/dL)</label>
+                    <input type="number" id="creatinine" step="0.01" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                        min="0.1" max="100" required>
+                </div>
+                <div>
+                    <label for="rao" class="block text-sm font-medium text-gray-700">RAO (Retención Aguda de Orina)</label>
+                    <select id="rao" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="si">Sí</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
             </div>
             <div id="rpmResult" class="text-center text-sm font-medium text-gray-700">
                 RPM: <span id="rpmValue">0.00%</span>
@@ -59,16 +80,26 @@
     <script>
         // Conjunto de datos simulado para progresión de HBP (solo referencia, no usado en la predicción)
         const data = [
-            { age: 55, ipss: 10, prostateVolume: 30, psa: 2.5, residualVolume: 50, progression: "Baja" },
-            { age: 65, ipss: 20, prostateVolume: 50, psa: 6.0, residualVolume: 150, progression: "Alta" },
-            { age: 60, ipss: 15, prostateVolume: 40, psa: 4.0, residualVolume: 100, progression: "Baja" },
-            { age: 70, ipss: 25, prostateVolume: 60, psa: 8.0, residualVolume: 200, progression: "Alta" },
-            { age: 58, ipss: 12, prostateVolume: 35, psa: 3.0, residualVolume: 80, progression: "Baja" },
-            { age: 72, ipss: 30, prostateVolume: 70, psa: 10.0, residualVolume: 250, progression: "Alta" }
+            { age: 55, ipss: 10, prostateVolume: 30, psa: 2.5, residualVolume: 50, creatinine: 1.0, rao: "no", progression: "Baja" },
+            { age: 65, ipss: 20, prostateVolume: 50, psa: 6.0, residualVolume: 150, creatinine: 1.8, rao: "si", progression: "Alta" },
+            { age: 60, ipss: 15, prostateVolume: 40, psa: 4.0, residualVolume: 100, creatinine: 1.2, rao: "no", progression: "Baja" },
+            { age: 70, ipss: 25, prostateVolume: 60, psa: 8.0, residualVolume: 200, creatinine: 2.0, rao: "si", progression: "Alta" },
+            { age: 58, ipss: 12, prostateVolume: 35, psa: 3.0, residualVolume: 80, creatinine: 0.9, rao: "no", progression: "Baja" },
+            { age: 72, ipss: 30, prostateVolume: 70, psa: 10.0, residualVolume: 250, creatinine: 1.7, rao: "si", progression: "Alta" }
         ];
 
         // Lógica simple de árbol de decisión basada en umbrales derivados del conjunto de datos
         function predictProgression(patientData) {
+            // RAO es un factor de alto riesgo inmediato
+            if (patientData.rao === "si") {
+                return "Alta";
+            }
+            
+            // Creatinina elevada indica compromiso renal y alto riesgo
+            if (patientData.creatinine > 1.5) {
+                return "Alta";
+            }
+            
             if (patientData.ipss > 20) {
                 if (patientData.psa > 7.0) {
                     return "Alta";
@@ -118,20 +149,28 @@
                 prostateVolume: parseFloat(document.getElementById("prostateVolume").value),
                 psa: parseFloat(document.getElementById("psa").value),
                 residualVolume: parseFloat(document.getElementById("residualVolume").value),
-                totalVolume: parseFloat(document.getElementById("totalVolume").value)
+                totalVolume: parseFloat(document.getElementById("totalVolume").value),
+                creatinine: parseFloat(document.getElementById("creatinine").value),
+                rao: document.getElementById("rao").value
             };
 
             // Validación básica
             if (
                 isNaN(patientData.age) || isNaN(patientData.ipss) || isNaN(patientData.prostateVolume) ||
-                isNaN(patientData.psa) || isNaN(patientData.residualVolume) || isNaN(patientData.totalVolume)
+                isNaN(patientData.psa) || isNaN(patientData.residualVolume) || isNaN(patientData.totalVolume) ||
+                isNaN(patientData.creatinine) || patientData.rao === ""
             ) {
-                document.getElementById("result").innerText = "Por favor, ingrese números válidos en todos los campos.";
+                document.getElementById("result").innerText = "Por favor, complete todos los campos con valores válidos.";
                 return;
             }
 
             if (patientData.ipss < 0 || patientData.ipss > 35) {
                 document.getElementById("result").innerText = "El puntaje IPSS debe estar entre 0 y 35.";
+                return;
+            }
+
+            if (patientData.creatinine < 0.1 || patientData.creatinine > 100) {
+                document.getElementById("result").innerText = "La creatinina debe estar entre 0.1 y 100 mg/dL.";
                 return;
             }
 

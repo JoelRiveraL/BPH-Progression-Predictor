@@ -78,32 +78,41 @@
             { age: 72, ipss: 30, prostateVolume: 70, psa: 10.0, residualVolume: 250, creatinine: 1.7, rao: "si", progression: "Alta" }
         ];
 
-        // Lógica simple de árbol de decisión basada en umbrales derivados del conjunto de datos
+        // Nueva lógica de predicción basada en criterios específicos
         function predictProgression(patientData) {
-            // RAO es un factor de alto riesgo inmediato
-            if (patientData.rao === "si") {
-                return "Alta";
+            let riskFactors = 0;
+            
+            // Calcular RPM%
+            const rpmPercentage = (patientData.residualVolume / patientData.totalVolume) * 100;
+            
+            // Criterio 1: Edad > 50 años
+            if (patientData.age > 50) {
+                riskFactors++;
             }
             
-            // Creatinina elevada indica compromiso renal y alto riesgo
+            // Criterio 2: Próstata > 30 ml
+            if (patientData.prostateVolume > 30) {
+                riskFactors++;
+            }
+            
+            // Criterio 3: RPM > 10%
+            if (rpmPercentage > 10) {
+                riskFactors++;
+            }
+            
+            // Criterio 4: Creatinina > 1.5 mg/dL
             if (patientData.creatinine > 1.5) {
-                return "Alta";
+                riskFactors++;
             }
             
-            if (patientData.ipss > 20) {
-                if (patientData.psa > 7.0) {
-                    return "Alta";
-                }
-                if (patientData.residualVolume > 175) {
-                    return "Alta";
-                }
+            // Criterio 5: PSA > 4 ng/mL
+            if (patientData.psa > 4) {
+                riskFactors++;
             }
-            if (patientData.prostateVolume > 55) {
-                if (patientData.age > 65) {
-                    return "Alta";
-                }
-            }
-            return "Baja";
+            
+            // Si se cumplen 2 o más criterios = Alto riesgo
+            // Si se cumple 1 o ninguno = Bajo riesgo
+            return riskFactors >= 2 ? "Alta" : "Baja";
         }
 
         // Manejador de envío del formulario

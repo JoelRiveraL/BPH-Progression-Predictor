@@ -40,17 +40,10 @@
                         min="0" required>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4">
                 <div>
-                    <label for="totalVolume" class="block text-sm font-medium text-gray-700">Volumen Total (ml)</label>
-                    <input type="number" id="totalVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                        min="0" required>
-                </div>
-                <div>
-                    <label for="residualVolume" class="block text-sm font-medium text-gray-700">Volumen Residual
-                        Postmiccional (ml)</label>
-                    <input type="number" id="residualVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                        min="0" required>
+                    <label for="residualVolume" class="block text-sm font-medium text-gray-700">Volumen Residual Postmiccional (PVR, ml)</label>
+                    <input type="number" id="residualVolume" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0" required>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
@@ -67,9 +60,6 @@
                         <option value="no">No</option>
                     </select>
                 </div>
-            </div>
-            <div id="rpmResult" class="text-center text-sm font-medium text-gray-700">
-                RPM: <span id="rpmValue">0.00%</span>
             </div>
             <button type="submit"
                 class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">Predecir</button>
@@ -116,28 +106,6 @@
             return "Baja";
         }
 
-        // Función para calcular y mostrar el porcentaje de RPM en tiempo real
-        function updateRpmPercentage() {
-            const totalVolume = parseFloat(document.getElementById("totalVolume").value);
-            const residualVolume = parseFloat(document.getElementById("residualVolume").value);
-            const rpmValueElement = document.getElementById("rpmValue");
-
-            if (!isNaN(totalVolume) && !isNaN(residualVolume) && totalVolume > 0) {
-                if (residualVolume > totalVolume) {
-                    rpmValueElement.innerText = "Error: Volumen residual mayor que total";
-                    return;
-                }
-                const rpmPercentage = ((residualVolume / totalVolume) * 100).toFixed(2);
-                rpmValueElement.innerText = `${rpmPercentage}%`;
-            } else {
-                rpmValueElement.innerText = "0.00%";
-            }
-        }
-
-        // Agregar eventos de entrada para actualizar RPM% en tiempo real
-        document.getElementById("totalVolume").addEventListener("input", updateRpmPercentage);
-        document.getElementById("residualVolume").addEventListener("input", updateRpmPercentage);
-
         // Manejador de envío del formulario
         document.getElementById("patientForm").addEventListener("submit", function (event) {
             event.preventDefault();
@@ -148,8 +116,7 @@
                 ipss: parseFloat(document.getElementById("ipss").value),
                 prostateVolume: parseFloat(document.getElementById("prostateVolume").value),
                 psa: parseFloat(document.getElementById("psa").value),
-                residualVolume: parseFloat(document.getElementById("residualVolume").value),
-                totalVolume: parseFloat(document.getElementById("totalVolume").value),
+                residualVolume: parseFloat(document.getElementById("residualVolume").value), // PVR
                 creatinine: parseFloat(document.getElementById("creatinine").value),
                 rao: document.getElementById("rao").value
             };
@@ -157,7 +124,7 @@
             // Validación básica
             if (
                 isNaN(patientData.age) || isNaN(patientData.ipss) || isNaN(patientData.prostateVolume) ||
-                isNaN(patientData.psa) || isNaN(patientData.residualVolume) || isNaN(patientData.totalVolume) ||
+                isNaN(patientData.psa) || isNaN(patientData.residualVolume) ||
                 isNaN(patientData.creatinine) || patientData.rao === ""
             ) {
                 document.getElementById("result").innerText = "Por favor, complete todos los campos con valores válidos.";
@@ -174,20 +141,68 @@
                 return;
             }
 
-            if (patientData.residualVolume > patientData.totalVolume) {
-                document.getElementById("result").innerText = "El volumen residual no puede ser mayor que el volumen total.";
-                return;
-            }
-
-            // Calcular RPM%
-            const rpmPercentage = ((patientData.residualVolume / patientData.totalVolume) * 100).toFixed(2);
-
             // Obtener predicción
             const prediction = predictProgression(patientData);
 
+            // Obtener recomendación clínica
+            function getRecommendation(data) {
+                // Alto riesgo inmediato por complicación
+                if (data.rao === "si" || data.creatinine > 1.5) {
+                    return "Considerar derivación urinaria urgente, iniciar alfa‑bloqueante, evaluar 5‑ARI.";
+                }
+
+                // C. Alto riesgo
+                if (
+                    data.ipss >= 20 ||
+                    data.psa >= 1.6 ||
+                    data.prostateVolume >= 50 ||
+                    data.residualVolume >= 100 ||
+                    data.age > 62
+                ) {
+                    return "Añadir 5‑ARI; vigilar PSA y volumen cada 6–12 meses. Evaluar combinación alfa‑bloqueante + 5‑ARI.";
+                }
+
+                // B. Riesgo moderado
+                if (
+                    data.ipss >= 8 && data.ipss <= 18 &&
+                    data.psa >= 1.5 &&
+                    data.prostateVolume >= 30 && data.prostateVolume <= 50
+                ) {
+                    return "Iniciar alfabloqueantes +/- 5‑ARI, reevaluar a 6–12 meses.";
+                }
+
+                // A. Riesgo bajo
+                if (
+                    data.ipss <= 18 &&
+                    data.psa < 1.5 &&
+                    data.prostateVolume < 30 &&
+                    data.residualVolume < 50 &&
+                    data.creatinine <= 1.5 &&
+                    data.rao === "no"
+                ) {
+                    return "Observación y cambios en estilo de vida, con monitoreo cada 6–12 meses.";
+                }
+
+                // Si no encaja exactamente, no dar recomendación
+                return "";
+            }
+
+            const recommendation = getRecommendation(patientData);
+
             // Mostrar resultados
-            document.getElementById("result").innerText =
-                `Predicción: Probabilidad ${prediction} de progresión de HBP`;
+            let predText = "";
+            if (prediction === "Alta") {
+                predText = "Progresión alta";
+            } else if (prediction === "Baja") {
+                predText = "Progresión baja";
+            } else if (prediction === "Media" || prediction === "Moderada") {
+                predText = "Progresión media";
+            } else {
+                predText = `Progresión: ${prediction}`;
+            }
+            document.getElementById("result").innerHTML =
+                `<div><b>${predText}</b></div>` +
+                (recommendation ? `<div class='mt-2'>Recomendación: <span class='font-normal'>${recommendation}</span></div>` : "");
         });
     </script>
 </body>

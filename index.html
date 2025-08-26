@@ -168,7 +168,7 @@
                     data.residualVolume >= 100 ||
                     data.age > 62
                 ) {
-                    return "Evaluar combinación alfa‑bloqueante + 5‑ARI. Vigilar PSA y volumen cada 6–12 meses.";
+                    return "Evaluar combinación alfa‑bloqueante + 5‑ARI. Añadir 5‑ARI. Vigilar PSA y volumen cada 6–12 meses.";
                 }
 
                 // B. Riesgo moderado
@@ -192,8 +192,8 @@
                     return "Observación y cambios en estilo de vida, con monitoreo cada 6–12 meses.";
                 }
 
-                // Si no encaja exactamente, no dar recomendación
-                return "";
+                // Discordante: criterios mixtos
+                return "Criterios mixtos: priorizar el parámetro más grave, ajustar tratamiento y seguimiento individual, e investigar causas no prostáticas de los síntomas o retención.";
             }
 
             const recommendation = getRecommendation(patientData);

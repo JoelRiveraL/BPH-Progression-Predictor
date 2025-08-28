@@ -160,27 +160,27 @@
                     return "Evaluar combinación alfa‑bloqueante + 5‑ARI. Considerar derivación urinaria urgente. Iniciar alfa‑bloqueante.";
                 }
 
-                // C. Alto riesgo
+                // C. Alto riesgo (debe cumplir TODOS los criterios de alto riesgo)
                 if (
-                    data.ipss >= 20 ||
-                    data.psa >= 1.6 ||
-                    data.prostateVolume >= 50 ||
-                    data.residualVolume >= 100 ||
+                    data.ipss >= 20 &&
+                    data.psa >= 1.6 &&
+                    data.prostateVolume >= 50 &&
+                    data.residualVolume >= 100 &&
                     data.age > 62
                 ) {
-                    return "Evaluar combinación alfa‑bloqueante + 5‑ARI. Añadir 5‑ARI. Vigilar PSA y volumen cada 6–12 meses.";
+                    return "Evaluar combinación alfa‑bloqueante + 5‑ARI. Vigilar PSA y volumen cada 6–12 meses.";
                 }
 
-                // B. Riesgo moderado
+                // B. Riesgo moderado (debe cumplir TODOS los criterios de moderado)
                 if (
                     data.ipss >= 8 && data.ipss <= 18 &&
                     data.psa >= 1.5 &&
                     data.prostateVolume >= 30 && data.prostateVolume <= 50
                 ) {
-                    return "Evaluar combinación alfa‑bloqueante + 5‑ARI. Reevaluar a 6–12 meses.";
+                    return "Evaluar combinación alfa‑bloqueante + 5‑ARI. Reevaluar a 6–12 meses.";
                 }
 
-                // A. Riesgo bajo
+                // A. Riesgo bajo (debe cumplir TODOS los criterios de bajo)
                 if (
                     data.ipss <= 18 &&
                     data.psa < 1.5 &&
@@ -189,7 +189,7 @@
                     data.creatinine <= 1.5 &&
                     data.rao === "no"
                 ) {
-                    return "Observación y cambios en estilo de vida, con monitoreo cada 6–12 meses.";
+                    return "Observación y cambios en estilo de vida, con monitoreo cada 6–12 meses.";
                 }
 
                 // Discordante: criterios mixtos

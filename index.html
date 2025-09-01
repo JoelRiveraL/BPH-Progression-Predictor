@@ -155,41 +155,44 @@
 
             // Obtener recomendación clínica
             function getRecommendation(data) {
-                // Alto riesgo inmediato por complicación
-                if (data.rao === "si" || data.creatinine > 1.5) {
-                    return "Evaluar combinación alfa‑bloqueante + 5‑ARI. Considerar derivación urinaria urgente. Iniciar alfa‑bloqueante.";
-                }
 
-                // C. Alto riesgo (debe cumplir TODOS los criterios de alto riesgo)
+                // A. Alto riesgo 
                 if (
                     data.ipss >= 20 &&
-                    data.psa >= 1.6 &&
+                    data.psa > 1.5 &&
+                    data.creatinine >= 2 &&
                     data.prostateVolume >= 50 &&
                     data.residualVolume >= 100 &&
-                    data.age > 62
+                    data.age > 62 &&
+                    data.rao === "si"
                 ) {
-                    return "Evaluar combinación alfa‑bloqueante + 5‑ARI. Vigilar PSA y volumen cada 6–12 meses.";
+                    return "Cateterización inmediata. Combinación de alfa-bloqueante + 5-ARI. Evaluar cirugía.";
                 }
 
-                // B. Riesgo moderado (debe cumplir TODOS los criterios de moderado)
+                // B. Riesgo moderado 
                 if (
-                    data.ipss >= 8 && data.ipss <= 18 &&
-                    data.psa >= 1.5 &&
-                    data.prostateVolume >= 30 && data.prostateVolume <= 50
-                ) {
-                    return "Evaluar combinación alfa‑bloqueante + 5‑ARI. Reevaluar a 6–12 meses.";
-                }
-
-                // A. Riesgo bajo (debe cumplir TODOS los criterios de bajo)
-                if (
-                    data.ipss <= 18 &&
-                    data.psa < 1.5 &&
-                    data.prostateVolume < 30 &&
-                    data.residualVolume < 50 &&
-                    data.creatinine <= 1.5 &&
+                    data.age >= 62 &&
+                    data.ipss >= 8 && data.ipss <= 19 &&
+                    data.psa == 1.5 && data.psa == 1.4 &&
+                    data.creatinine >= 1.5 && data.creatinine >= 1.9 &&
+                    data.prostateVolume >= 30 && data.prostateVolume <= 50 &&
+                    data.residualVolume >= 50 && data.residualVolume <= 100 &&
                     data.rao === "no"
                 ) {
-                    return "Observación y cambios en estilo de vida, con monitoreo cada 6–12 meses.";
+                    return "Evaluar combinación alfa-bloqueante + 5-ARI. Vigilar PSA y volumen prostático a 3-6 meses.";
+                }
+
+                // C. Riesgo bajo 
+                if (
+                    data.ipss <= 8 &&
+                    data.psa <= 1.3 &&
+                    data.prostateVolume < 30 &&
+                    data.residualVolume < 50 &&
+                    data.creatinine <= 1.4 &&
+                    data.rao === "no" && 
+                    data.age < 62
+                ) {
+                    return "Observación y cambios en estilo de vida, con monitoreo cada 6-12 meses.";
                 }
 
                 // Discordante: criterios mixtos

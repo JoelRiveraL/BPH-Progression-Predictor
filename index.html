@@ -186,7 +186,7 @@
                 if (
                     data.ipss <= 8 &&
                     data.psa <= 1.3 &&
-                    data.prostateVolume < 30 &&
+                    data.prostateVolume <= 30 &&
                     data.residualVolume < 50 &&
                     data.creatinine <= 1.4 &&
                     data.rao === "no" && 
@@ -196,7 +196,7 @@
                 }
 
                 // Discordante: criterios mixtos
-                return "Criterios mixtos: priorizar el parámetro más grave, ajustar tratamiento y seguimiento individual, e investigar causas no prostáticas de los síntomas o retención.";
+                return "Priorizar el parámetro más grave, ajustar tratamiento y seguimiento individual, e investigar causas no prostáticas de los síntomas o retención.";
             }
 
             const recommendation = getRecommendation(patientData);
@@ -211,6 +211,10 @@
                 predText = "Progresión media";
             } else {
                 predText = `Progresión: ${prediction}`;
+            }
+
+            if (recommendation === "Priorizar el parámetro más grave, ajustar tratamiento y seguimiento individual, e investigar causas no prostáticas de los síntomas o retención.") {
+                predText = "Criterios mixtos";
             }
             document.getElementById("result").innerHTML =
                 `<div><b>${predText}</b></div>` +
